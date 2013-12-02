@@ -118,7 +118,7 @@
 			</div>
 		</div>
 		<div class="tab-pane active" id="rules">
-			<button type="button" class="btn btn-primary">New</button>
+			<button type="button" class="btn btn-primary myPopover" data-toggle="modal" data-target="#newRule">New</button>
 			
 			<table class="table table-hover">
 				<thead>
@@ -139,7 +139,8 @@
 
 
     </div><!-- /.container -->
-
+	
+<?php include_once "inc/modals.php"; ?>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -157,6 +158,7 @@
 			  //e.preventDefault() // Аналог "return false" или типа того
 			  $(this).tab('show')
 			});
+			$('#myPopover').popover(options);
 		});
 	</script>
   </body>
