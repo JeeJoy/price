@@ -1,0 +1,1 @@
+<?php	include_once "core/config.php";	if (isset($_POST['formNewRule']))		$error = createRule($_POST['provider'], $_POST['from'], $_POST['text'], $_POST['textinfilename'], $_POST['subject'], $_POST['newfilename'], $_POST['path']);?>

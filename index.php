@@ -11,6 +11,8 @@
 		header('Location: http://'.$_SERVER['HTTP_HOST'].'/signin.php');
 		exit();
 	}
+	
+	include_once "core/post.php";
 ?>
 
 <!DOCTYPE html>
@@ -67,6 +69,14 @@
     </div>
 
     <div class="container">
+	
+<?php
+	if ($error == '1') {
+      echo('<div class="alert alert-danger fade in">
+        <strong>Alert!</strong> Error in rules.
+      </div>');
+	}
+?>
 
       <div class="tab-content">
 		<div class="tab-pane" id="home">
@@ -119,18 +129,45 @@
 		</div>
 		<div class="tab-pane active" id="rules">
 			<button type="button" class="btn btn-primary myPopover" data-toggle="modal" data-target="#newRule">New</button>
-			
+<?php
+	$rules = loadRules();
+?>
 			<table class="table table-hover">
 				<thead>
-					<tr><th>ID</th><th width="100%">Rule</th><th></th></tr>
+					<tr><th>ID</th><th>Provider</th><th width="60%">Rule</th><th width="65px"></th></tr>
 				</thead>
 				<tbody>
-					<tr><td>1</td><td>Bla-bla-bla</td><td><button title="Delete rule" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-remove"></span></button></td></tr>
-					<tr><td>2</td><td>Bla-bla-bla</td><td><button title="Delete rule" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-remove"></span></button></td></tr>
-					<tr><td>3</td><td>Bla-bla-bla</td><td><button title="Delete rule" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-remove"></span></button></td></tr>
-					<tr><td>1</td><td>Bla-bla-bla</td><td><button title="Delete rule" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-remove"></span></button></td></tr>
-					<tr><td>2</td><td>Bla-bla-bla</td><td><button title="Delete rule" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-remove"></span></button></td></tr>
-					<tr><td>3</td><td>Bla-bla-bla</td><td><button title="Delete rule" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-remove"></span></button></td></tr>
+<?php
+	$i = 0;
+	foreach($rules as $index => $val)
+    {
+        echo('<tr>
+			<td>'.$rules[$i]['ID'].'</td>
+			<td>'.$rules[$i]['Provider'].'</td>
+			<td>От "'.$rules[$i]['From'].'" с темой "'.$rules[$i]['Subject'].'".');
+			
+		if ($rules[$i]['Text'])
+			echo (' Текст письма "'.$rules[$i]['Text'].'".');
+			
+		if ($rules[$i]['TextInFilename'])
+			echo (' Слова в имени файла "'.$rules[$i]['TextInFilename'].'".');
+			
+		echo (' Переименовать в "'.$rules[$i]['NewFilename'].'" и сохранить в "'.$rules[$i]['Path'].'".</td>
+			<td>
+				<div class="btn-group" style="display: inline-block;">
+					<button title="Edit rule" type="button" class="btn btn-default btn-xs">
+						<span class="glyphicon glyphicon-pencil"></span>
+					</button>
+					<button title="Delete rule" type="button" class="btn btn-default btn-xs">
+						<span class="glyphicon glyphicon-remove"></span>
+					</button>
+				</div>
+			</td>
+		</tr>');
+			
+		$i++;
+    }
+?>
 				</tbody>
 			</table>
 		</div>
