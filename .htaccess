@@ -1,0 +1,6 @@
+DirectoryIndex index.php
+
+#RewriteEngine On
+#RewriteRule ^signin(/?) signin.php [L]
+RewriteRule ^signin/([^/]*)(/?)+$ signin.php?error=$1 [L]
+RewriteRule ^logout/(?) logout.php [L]

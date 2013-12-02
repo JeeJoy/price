@@ -1,3 +1,18 @@
+<?php
+	include_once "core/config.php";
+
+	if($_SERVER['REQUEST_URI'] == '/index.php') { // "Убираем" index.php из адресной строки
+		header('HTTP/1.1 301 Moved Permanently');
+		header('Location: http://'.$_SERVER['HTTP_HOST']);
+		exit();
+	}
+
+	if (empty($_SESSION['login'])) { // Если не авторизовались, то переходим на страничку авторизации
+		header('Location: http://'.$_SERVER['HTTP_HOST'].'/signin.php');
+		exit();
+	}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,7 +23,7 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="../../docs-assets/ico/favicon.png">
 
-    <title>Starter Template for Bootstrap</title>
+    <title>Script for prices</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../../css/bootstrap.css" rel="stylesheet">
@@ -37,13 +52,14 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Project name</a>
+          <a class="navbar-brand" href="#">Script for prices</a>
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <li class="active"><a href="#">Home</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
+			<li><a href="/logout.php">Logout</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -53,7 +69,8 @@
 
       <div class="starter-template">
         <h1>Bootstrap starter template</h1>
-        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
+        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.
+		<br>Ку-ку</p>
       </div>
 
     </div><!-- /.container -->

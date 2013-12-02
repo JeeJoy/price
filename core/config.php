@@ -1,0 +1,1 @@
+<?phpsession_start();header("Content-Type: text/html; charset=utf-8");$alogin = "admin";$apass = "897c8fde25c5cc5270cda61425eed3c8"; // md5(md5("qwerty"));?>
