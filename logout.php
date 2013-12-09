@@ -1,7 +1,7 @@
 <?php 
 	include_once "core/config.php";
 	
-	header("Location: /");
+	header("Location: index2.php");
 	
 	if (empty($_SESSION['login']))
 		exit();

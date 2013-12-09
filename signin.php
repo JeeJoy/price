@@ -7,7 +7,7 @@
 	}*/
 	
 	if (!empty($_SESSION['login'])) { // Если уже авторизовались, то переходим на главную страничку
-		header('Location: /');
+		header('Location: index2.php');
 		exit();
 	}
 ?>
