@@ -1,97 +1,128 @@
 <?php
 	ini_set("max_execution_time", "60");
-	//include_once "pclzip.lib.php";
+	include_once "core/config.php";
 	include_once "imap.php";
-	include_once "core/func.php";
-	//header("Content-Type: text/html; charset=koi8-r");
-?>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-  </head>
-
-  <body>
-
-<?php
-	//include_once "core/config.php";
 	
-	//ini_set('display_errors', 1);
-  	//error_reporting(E_ALL);
+	ini_set('display_errors', 1);
+  	error_reporting(E_ALL);
 	
-	$arr = loadRules();
-	var_dump($arr);
-	echo('<br><br>');
+	// Пример записи вывода в переменную
+  	//ob_start();
+	//echo 'Hello askdev';
+	//$myStr = ob_get_contents();
+	//ob_end_clean();
+	
+	$echo = '';
+  	
+  	$logGB = new LogGoodBad();
+	
+	$arr = loadRule();
 	
 	// Коннектимся
-	//$imap = new receiveMail('address', 'password', 'address', 'server', 'protocol', 'port', ssl true/false);
-	$imap = new receiveMail('address', 'password', 'address', 'server', 'protocol', 'port', ssl true/false);
+	//$imap = new receiveMail('address', 'password', 'address', 'server', 'protocol', 'port', 'ssl true/false');
+	$imap = new receiveMail('address', 'password', 'address', 'server', 'protocol', 'port', 'ssl true/false');
 	$source = $imap->connect();
 	$num = $imap->getTotalMails();
-	$uid = imap_uid($source, $num);
 	//$structure = imap_fetchstructure($source, $num);
 	//$attachments = getAttachments($source, $num, $structure, "");
 	
 	// Смотрим письмо
 	//echo('<table border="1">');
-	for ($i = $num; $i > ($num - 10); $i--) {
-		echo('<b>Смотрим письмо</b><br>');
-		$header = imap_header($source, $i);
-		$fromInfo = $header->from[0];
-		$replyInfo = $header->reply_to[0];
-		$email = $fromInfo->mailbox . "@" . $fromInfo->host;
-		$subject = explode("?", $header->subject);
-		//$text = $arr[2] == 'Q' ? quoted_printable_decode($text) : base64_decode($text);
-		$subject[3] = base64_decode($subject[3]);
-		if ($subject[1] != 'utf-8')
-			$subject[3] = iconv('', 'utf-8', $subject[3]);
-		$uid = imap_uid ($source, $i);
-		$body = getBody($uid, $source);
-		$structure = imap_fetchstructure($source, $i);
-		//$attachments = getAttachments($source, $i, $structure, '');
-		//$attachments = $imap->GetAttach(false, $i,'./testfiles/');
-		//$attachments = explode("?", $attachments);
-		//$attachments[3] = base64_decode($attachments[3]);
-		//if ($attachments[1] != 'utf-8')
-			//$attachments[3] = iconv('', 'utf-8', $attachments[3]);
-		echo('От: '.$email.'<br>Тема: '.$subject[3].'<br>');
-		
-		// Скачиваем вложения
-		echo('Скачиваю вложения<br>');
-		$filenames = $imap->GetAttach(false, $i, true); // Получаем имена вложений
-		$part = 0;
-		foreach ($filenames as $filename)
-		{
-			echo('Смотрю вложение '.$filename.'<br>');
-			$pos = strrpos($filename, ".");
-			$ext = substr($filename, $pos, strlen($filename));
-			if ($ext == '.rar' or $ext == '.zip') // Архив или нет?
-			{
-				echo('Это архив! С архивами, пока, ничего не делаем.<br>');
-				//$tmpName = md5(uniqid());
-				// Скачиваем
-				//$imap->GetAttach(false,$i,$_SERVER['DOCUMENT_ROOT'].'/testfiles/tmp/',$tmpName.$ext);
-				// Распаковываем
-				//echo('Распаковываю.<br>');
-				//$archive = new PclZip($_SERVER['DOCUMENT_ROOT'].'/testfiles/tmp/',$tmpName.$ext);
-				//if ($archive->extract() == 0) {
-				//	echo("Error : ".$archive->errorInfo(true));
-				//}else{
-				//	echo('ok');
-				//}
-				//$zip = new ZipArchive;
-				//$zip->open('./testfiles/tmp/'.$tmpName.$ext, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
-				//$zip->extractTo('./testfiles/tmp/'.$tmpName.'/');
-				//$zip->close();
+	for ($i = $num; $i > ($num - MAX_MAIL); $i--) {
+		$uid = imap_uid($source, $i);
+		//if ($uid == 451)
+		//{
+			ob_start(); // Запускаем буферизацию вывода
+			echo("<b>Смотрим письмо ".$i."</b><br>");
+			$echo = '';
+			$header = imap_header($source, $i);
+			$fromInfo = $header->from[0];
+			$replyInfo = $header->reply_to[0];
+			$email = $fromInfo->mailbox . "@" . $fromInfo->host;
+			$subject = explode("?", $header->subject);
+			//$text = $arr[2] == 'Q' ? quoted_printable_decode($text) : base64_decode($text);
+			
+			echo('Проверяем $header->subject<br>$header->subject после разбиения: ');
+			var_dump($subject);
+			//echo('<br>После imap_mime_header_decode (): '); // Иначе в логе "абракадабра"
+			//var_dump(imap_mime_header_decode ($header->subject)); // Иначе в логе "абракадабра"
+			$subject[3] = base64_decode($subject[3]);
+			//echo('<br>После base64_decode(): '); // Иначе в логе "абракадабра"
+			//var_dump($subject[3]); // Иначе в логе "абракадабра"
+			echo('<br>Кодировка: '.$subject[1].'. ');
+			if ($subject[1] == 'windows-1251') {
+				$subject[3] = iconv('cp1251', 'utf-8', $subject[3]);
+				echo('Меняем на utf-8.');
+			} elseif ($subject[1] == 'KOI8-R') {
+				$subject[3] = iconv('KOI8-R', 'utf-8', $subject[3]);
+				echo('Меняем на utf-8.');
+			} elseif ($subject[1] != 'utf-8') {
+				$subject[3] = iconv('', 'utf-8', $subject[3]);
+				echo('Меняем на utf-8.');
 			} else {
-				echo('Это не архив. Проверим файл по БД.<br>');
-				// Проверяю вложение по БД
-				checkMail($email, $subject[3], $body, $filename);
+				echo('Не меняем.');
 			}
-			unlink($_SERVER['DOCUMENT_ROOT'].'/testfiles/tmp/'.$filename);
-			$part++;
+			echo('<br>После перекодировки: ');
+			var_dump($subject[3]);
+			echo('<br><br>');
+			$uid = imap_uid ($source, $i);
+			$body = getBody($uid, $source);
+			$structure = imap_fetchstructure($source, $i);
+			//$attachments = getAttachments($source, $i, $structure, '');
+			//$attachments = $imap->GetAttach(false, $i,'./testfiles/');
+			//$attachments = explode("?", $attachments);
+			//$attachments[3] = base64_decode($attachments[3]);
+			//if ($attachments[1] != 'utf-8')
+				//$attachments[3] = iconv('', 'utf-8', $attachments[3]);
+			echo('От: '.$email.'<br>
+			Тема: '.$subject[3].'<br>');
+			echo('Тема64: ');
+			var_dump($header->subject);
+			echo('<br>ТемаA: ');
+			var_dump($subject);
+			echo('<br>UID: ');
+			var_dump($uid);
 			echo('<br>');
-		}
-		echo('<br>');
+			
+			// Скачиваем вложения
+			echo('Скачиваю вложения<br>');
+			$filenames = $imap->GetAttach(false, $i, true); // Получаем имена вложений
+			$part = 0;
+			foreach ($filenames as $filename)
+			{
+				echo('Смотрю вложение '.$filename.'<br>');
+				$pos = strrpos($filename, ".");
+				$ext = substr($filename, $pos, strlen($filename));
+				//if ($ext == '.rar' or $ext == '.zip') // Архив или нет?
+				//{
+					//echo('Это архив! С архивами, пока, ничего не делаем.<br>');
+					//$tmpName = md5(uniqid());
+					// Скачиваем
+					//$imap->GetAttach(false,$i,$_SERVER['DOCUMENT_ROOT'].'/testfiles/tmp/',$tmpName.$ext);
+					// Распаковываем
+					//echo('Распаковываю.<br>');
+					//$archive = new PclZip($_SERVER['DOCUMENT_ROOT'].'/testfiles/tmp/',$tmpName.$ext);
+					//if ($archive->extract() == 0) {
+					//	echo("Error : ".$archive->errorInfo(true));
+					//}else{
+					//	echo('ok');
+					//}
+					//$zip = new ZipArchive;
+					//$zip->open('./testfiles/tmp/'.$tmpName.$ext, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
+					//$zip->extractTo('./testfiles/tmp/'.$tmpName.'/');
+					//$zip->close();
+				//} else {
+					//echo('Это не архив. Проверим файл по БД.<br>');
+					echo('Проверим файл по БД.<br>');
+					// Проверяю вложение по БД
+					checkMail($email, $subject[3], $body, $filename);
+				//}
+				unlink($_SERVER['DOCUMENT_ROOT'].'/testfiles/tmp/'.$filename);
+				$part++;
+				echo('<br>');
+			}
+			echo('<br>');
+		//}
 		
 		/*echo('<tr><td>
 			От: '. $email .'<br>
@@ -104,59 +135,123 @@
 		var_dump($attachments);
 		echo('<br>That same: '. (($attachments == 'LRService(Руб)_09.12.2013.zip') ? 'Yes' : 'No'));
 		echo('</td></tr>');*/
+		$echo = ob_get_contents();
+		ob_end_clean(); // Останавливаем буферизацию вывода и очищаем буфер
+		
+		if (SCRIPT_DEBUG)
+			echo($echo);
 	}
 	//echo('<table>');
 	
 	function checkMail($email, $subject, $body, $filename)
 	{
 		global $arr;
+		global $echo;
+		global $logGB;
 	
 		// Перебираем правила
 		foreach ($arr as $value)
 		{
+			$email = strtolower($email);
+			$subject = strtolower($subject);
+			$vemail = strtolower($value['From']);
+			$vsubject = strtolower($value['Subject']);
+			
+			echo('$value[\'From\']: '.$value['From'].'<br>');
+			echo('$email: '.$email.'<br>');
+			echo('$value[\'Subject\']: '.$value['Subject'].'<br>');
+			echo('$subject: '.$subject.'<br><br>');
 			// Если поля "От" и "Тема" совпадают
-			if (strtolower($value['From']) == strtolower($email) and strtolower($value['Subject']) == strtolower($subject))
+			//if (strtolower($value['From']) == strtolower($email) and strtolower($value['Subject']) == strtolower($subject))
+			if ($vemail == $email and (!strlen($vsubject) or strpos($subject, $vsubject) !== false))
 			{
 				echo("\"От кого\" и \"Тема\" совпадают. Смотрим дальше.<br>");
 				$body = strtolower($body);
-				var_dump($body);
-				echo('<br>');
+				//var_dump($body);
+				//echo('<br>');
 				$text = strtolower($value['Text']);
-				var_dump($text);
-				echo('<br>');
+				//var_dump($text);
+				//echo('<br>');
 				if (strlen($text))
 					$tmpText = substr($body, strpos($body, $text), strlen($text));
 				else
 					$tmpText = '';
-				var_dump($tmpText);
-				echo('<br>');
+				//var_dump($tmpText);
+				//echo('<br>');
 				if (!strlen($text) or $text == $tmpText)
 				{
 					if (!strlen($text))
 						echo('Проверки по тексту нет.<br>');
-					if ($text == $tmpText)
+					elseif ($text == $tmpText)
 						echo('Проверка по тексту прошла успешно.<br>');
-					echo('$value[\'From\']: '.$value['From'].'<br>');
-					echo('$email: '.$email.'<br>');
-					echo('$value[\'Subject\']: '.$value['Subject'].'<br>');
-					echo('$subject: '.$subject.'<br><br>');
-				
-					echo("Письмо подходит! Проверяем имя вложения.<br>");
-					if (strpos($value['TextInFilename'], substr($filename, 9, strlen($filename))) !== false)
+					
+					echo('Письмо подходит! Проверяем имя вложения.<br>
+					$value["TextInFilename"]: '.$value["TextInFilename"].'<br>
+					$filename: '.$filename.'<br>');
+					$lfilename = strtolower($filename);
+					$vlfilename = strtolower($value['TextInFilename']);
+					$pos = strrpos($filename, ".");
+					$ext = substr($filename, $pos, strlen($filename));
+					if ($ext == '.rar' or $ext == '.zip') // Архив или нет?
 					{
-						// Если файл совпадает, то перемещаем в нужное место
-						echo('Перемещаем файл!!!<br>');
+						// Если архив, то просто перемещаем и уведомляем о ручной обработке
 						$sourceFile = $_SERVER['DOCUMENT_ROOT'].'/testfiles/tmp/'.$filename;
 						var_dump($sourceFile);
 						echo('<br>');
-						var_dump($_SERVER['DOCUMENT_ROOT'].$value['Path'].$filename);
+						if (strpos($filename, '_') == 8)
+							$filename = substr($filename, 9, strlen($filename));
+						$outFile = $_SERVER['DOCUMENT_ROOT'].$value['Path'].$filename;
 						echo('<br>');
-						if (strlen($value['NewFilename']))
-							$filename = $value['NewFilename'];
-						if (copy($sourceFile, $_SERVER['DOCUMENT_ROOT'].$value['Path'].$filename))
+						echo('Это архив (rar/zip). Я пока не умею их распаковывать. Распакуйте вручную.<br>
+						Сохраняю в '.$outFile.'<br>');
+						if (copy($sourceFile, $outFile)) {
+						// Если rename() вместо copy(), то придется отключить unlink()
+						//if (rename($sourceFile, $_SERVER['DOCUMENT_ROOT'].$value['Path'].$filename))
 							echo('Перемещение прошло успешно.<br>');
-						else
+							$echo = ob_get_contents();
+							echo($logGB->write('bad', $email, $echo));
+							echo('<br>');
+						} else {
 							echo('Я не смог переместить =(<br>');
+							$echo = ob_get_contents();
+							echo($logGB->write('bad', $email, $echo));
+							echo('<br>');
+						}
+						return;
+					} else {
+						//if (strpos($value['TextInFilename'], substr($filename, 9, strlen($filename))) !== false)
+						if (strpos($lfilename, $vlfilename) !== false)
+						{
+							// Если файл совпадает, то перемещаем в нужное место
+							echo('Перемещаем файл!!!<br>');
+							$sourceFile = $_SERVER['DOCUMENT_ROOT'].'/testfiles/tmp/'.$filename;
+							var_dump($sourceFile);
+							echo('<br>');
+							if (strlen($value['NewFilename']))
+								$filename = $value['NewFilename'];
+							$outFile = $_SERVER['DOCUMENT_ROOT'].$value['Path'].$filename;
+							var_dump($outFile);
+							echo('<br>');
+							if (copy($sourceFile, $outFile)) {
+							// Если rename() вместо copy(), то придется отключить unlink()
+							//if (rename($sourceFile, $_SERVER['DOCUMENT_ROOT'].$value['Path'].$filename))
+								echo('Перемещение прошло успешно.<br>');
+								$echo = ob_get_contents();
+								echo($logGB->write('good', $email, $echo));
+								echo('<br>');
+							} else {
+								echo('Я не смог переместить =(<br>');
+								$echo = ob_get_contents();
+								echo($logGB->write('bad', $email, $echo));
+								echo('<br>');
+							}
+							return;
+						} else {
+							echo('Совпадений в имени не найдено.<br><br>');
+							$echo = ob_get_contents();
+							echo($logGB->write('bad', $email, $echo));
+							echo('<br><br>');
+						}
 					}
 					/*foreach ($names as $name)
 					{
@@ -171,9 +266,16 @@
 					}*/
 				} else {
 					echo("Проверка по тексту провалилась.<br>");
+					$echo = ob_get_contents();
+					echo($logGB->write('bad', $email, $echo));
+					echo('<br>');
 				}
 			} else {
 				echo("Правило не подошло.<br>");
+				//$echo = ob_get_contents();
+				//echo($logGB->write('bad', $email, $echo));
+				//echo('<br>');
+				
 			}
 		}
 		return 0;
@@ -453,7 +555,7 @@
 	var_dump($header);
 	echo('<br><br>$body: ');
 	var_dump($body);*/
+	
+	if (!SCRIPT_DEBUG)
+		echo('Done');
 ?>
-
-  </body>
-</html>

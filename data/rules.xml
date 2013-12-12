@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Rules>
-  <Service>
-    <ID Value="5"/>
-  </Service>
-  <RuleCollection>
-    <Rule ID="1" Provider="Паша" From="autopodveska@mail.ru" Text="" TextInFilename="Наличие.xls" Subject="Teknorot наличие на 09.12.13" NewFilename="testFile1" Path="/testfiles/import/"/>
-	<Rule ID="2" Provider="Паша2" From="order@partex-m.ru" Text="" TextInFilename="Прайс-лист Partex.xls" Subject="Прайс-лист ООО &quot;Поланс&quot;(VIP)" NewFilename="testFile2" Path="/testfiles/import/"/>
-  </RuleCollection>
+	<Service>
+		<ID Value="3"/>
+	</Service>
+	<RuleCollection>
+		<Rule ID="1" Provider="&quot;Вася&quot;" From="vasya@mail.ru" Text="" TextInFilename="file" Subject="От Васи" NewFilename="" Path="/somepath/somefolder/"/>
+		<Rule ID="2" Provider="НЕМАН" From="annav@nemanauto.ru" Text="" TextInFilename="NEMAN_price" Subject="НЕМАН наличие" NewFilename="nemanprice.xls" Path="/prices/neman/"/>
+	</RuleCollection>
 </Rules>

@@ -1,4 +1,4 @@
-DirectoryIndex index2.php
+DirectoryIndex index.php
 
 #RewriteEngine On
 #RewriteRule ^signin(/?) signin.php [L]

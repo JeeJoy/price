@@ -1,1 +1,5 @@
-<?php	include_once "core/config.php";	if (isset($_POST['formNewRule']))		$error = createRule($_POST['provider'], $_POST['from'], $_POST['text'], $_POST['textinfilename'], $_POST['subject'], $_POST['newfilename'], $_POST['path']);?>
+<?php	include_once "func.php";	if (isset($_POST['formNewRule'])) { // Если был запрос на создание нового правила		$error = rule($_POST['provider'], $_POST['from'], $_POST['text'], $_POST['textinfilename'], $_POST['subject'], $_POST['newfilename'], $_POST['path']);	}	elseif (isset($_POST['formEditRule'])) { // Если был запрос на создание нового правила		$error = rule($_POST['provider'], $_POST['from'], $_POST['text'], $_POST['textinfilename'], $_POST['subject'], $_POST['newfilename'], $_POST['path'], 'edit', $_POST['ruleID']);	}	elseif (isset($_POST['jquery'])) { // Если был послан POST запрос через jQuery		if  (isset($_POST['query'])) {			$queries = array('editRule', 'delRule');			$query = array_search($_POST['query'], $queries);			if ($query !== false) { // Проверяем запрос на корректность				switch ($query) {
+					case 0:						if (isset($_POST['id']))
+							echo(json_encode(loadRule((int)$_POST['id'])));
+						break;					case 1:						if (isset($_POST['id']))							echo(delRule((int)$_POST['id']));						break;
+				}			} else {				echo('query not found');			}		}	}?>

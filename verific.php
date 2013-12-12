@@ -27,7 +27,7 @@
 	
 	if ((md5(md5($password)) == $apass) and $login == $alogin) {
 		$_SESSION['login'] = $alogin;
-		header('Location: index2.php');
+		header('Location: index.php');
 	} else {
 		//header('Location: /signin/?err=1');
 		header('Location: /signin.php?err=1');

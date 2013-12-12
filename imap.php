@@ -197,8 +197,8 @@
 							{
 								$name=$struckture->parts[$key]->parts[$keyb]->dparameters[0]->value;
 								$name = explode("?", $name);
-								var_dump($name);
-								echo('<br>');
+								//var_dump($name);
+								//echo('<br>');
 								if (count($name) > 1) {
 									$name[3] = base64_decode($name[3]);
 									if ($name[1] != 'utf-8')
@@ -215,8 +215,8 @@
 								}
 								if ($rename)
 									$name[0] = substr(md5(uniqid()), 0, 8).'_'.$name[0];
-								var_dump($name);
-								echo('<br>');
+								//var_dump($name);
+								//echo('<br>');
 								$partnro = ($key+1).".".($keyb+1);
 								if (!$getonlyname) {
 									$message = imap_fetchbody($this->marubox,$mid,$partnro);

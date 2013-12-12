@@ -1,1 +1,1 @@
-<?php	session_start();	header("Content-Type: text/html; charset=utf-8");	$alogin = "admin";	$apass = "897c8fde25c5cc5270cda61425eed3c8"; // md5(md5("qwerty"));		include_once "core/func.php";?>
+<?php	ini_set('display_errors', 1);  	error_reporting(E_ALL);	session_start();	header("Content-Type: text/html; charset=utf-8");	$alogin = "admin";	$apass = "ef4ddf645aa223c0b2b1356fbb4fd90a";		define("MAX_MAIL", 20);	define("SCRIPT_DEBUG", FALSE);		include_once "core/func.php";?>

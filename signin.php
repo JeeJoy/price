@@ -7,7 +7,7 @@
 	}*/
 	
 	if (!empty($_SESSION['login'])) { // Если уже авторизовались, то переходим на главную страничку
-		header('Location: index2.php');
+		header('Location: index.php');
 		exit();
 	}
 ?>
@@ -45,7 +45,7 @@
     <div class="container">
 
 <?php
-	if ($_GET['err'] == '1') {
+	if (!empty($_GET['err']) and $_GET['err'] == '1') {
       echo('<div class="alert alert-danger fade in">
         <strong>Alert!</strong> Wrong login or password.
       </div>');
