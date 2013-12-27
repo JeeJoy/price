@@ -124,7 +124,9 @@
 		}
 		function GetAttach($getonlyname = true, $mid = '', $rename = false, $path = '') // Get Atteced File from Mail
 		{
-			$path = $_SERVER['DOCUMENT_ROOT'].'/testfiles/tmp/';
+			global $DOCUMENT_ROOT;
+			
+			$path = $DOCUMENT_ROOT.'/files/tmp/';
 			
 			if(!$this->marubox)
 				return false;

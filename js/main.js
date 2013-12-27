@@ -46,13 +46,17 @@ function loadMail(elm) { // Загрузка почты
 						$("#messagesRow").show('slide',{ direction: 'up' }, 500,function() {
 							elm.setAttribute('onclick', 'loadMail(this);');
 						});
-					} else {
+					} else if (data.indexOf('Done') > -1) {
 						document.all.messages.innerHTML = '<strong>Готово!</strong> Обновляю страничку.';
 						document.all.messages.className = 'alert alert-success';
 						$("#messagesRow").show('slide',{ direction: 'up' }, 500,function() {
 							sleep(3000);
 							location.reload();
 		    			});
+		    		} else {
+						document.all.messages.innerHTML = '<strong>Внимание!</strong> Скрипт долгое время не отвечал. Попробуйте еще раз, либо обратитесь к сис.администратору.';
+						document.all.messages.className = 'alert alert-warning';
+						$("#messagesRow").show('slide',{ direction: 'up' }, 500,{ });
 		    		}
 		    		elm.innerHTML = 'Сканировать почту';
 					elm.disabled = '';
