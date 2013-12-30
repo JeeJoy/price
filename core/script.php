@@ -1,6 +1,6 @@
 <?php
 	ini_set("max_execution_time", "60");
-	include_once "core/config.php";
+	include_once "config.php";
 	include_once "imap.php";
 	
 	ini_set('display_errors', 1);
@@ -106,30 +106,8 @@
 				echo('Смотрю вложение '.$filename.'<br>');
 				$pos = strrpos($filename, ".");
 				$ext = substr($filename, $pos, strlen($filename));
-				//if ($ext == '.rar' or $ext == '.zip') // Архив или нет?
-				//{
-					//echo('Это архив! С архивами, пока, ничего не делаем.<br>');
-					//$tmpName = md5(uniqid());
-					// Скачиваем
-					//$imap->GetAttach(false,$i,$_SERVER['DOCUMENT_ROOT'].'/files/tmp/',$tmpName.$ext);
-					// Распаковываем
-					//echo('Распаковываю.<br>');
-					//$archive = new PclZip($_SERVER['DOCUMENT_ROOT'].'/files/tmp/',$tmpName.$ext);
-					//if ($archive->extract() == 0) {
-					//	echo("Error : ".$archive->errorInfo(true));
-					//}else{
-					//	echo('ok');
-					//}
-					//$zip = new ZipArchive;
-					//$zip->open('./files/tmp/'.$tmpName.$ext, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
-					//$zip->extractTo('./files/tmp/'.$tmpName.'/');
-					//$zip->close();
-				//} else {
-					//echo('Это не архив. Проверим файл по БД.<br>');
-					echo('Проверим файл по БД.<br>');
-					// Проверяю вложение по БД
-					checkMail($email, $newSubject, $body, $filename);
-				//}
+				echo('Проверим файл по БД.<br>');
+				checkMail($email, $newSubject, $body, $filename);
 				unlink($DOCUMENT_ROOT.'/files/tmp/'.$filename);
 				$part++;
 				echo('<br>');

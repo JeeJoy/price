@@ -32,7 +32,7 @@ function loadMail(elm) { // Загрузка почты
 		document.all.messages.innerHTML = '<strong>Сканирование почты!</strong> Подождите, пожалуйста. Страничка скоро перезагрузится автоматически.';
 		document.all.messages.className = 'alert alert-info';
 		$("#messagesRow").show('slide',{ direction: 'up' }, 500,function() {
-			$.post("script.php",{ }, function(data) {
+			$.post("core/script.php",{ }, function(data) {
 				$("#messagesRow").hide('slide',{ direction: 'up' }, 500,function() {
 					if (data.indexOf('Error: Connecting to mail server') > -1) {
 						document.all.messages.innerHTML = '<button type="button" class="close" aria-hidden="true" onclick="MsgCls();">&times;</button><strong>Ошибка!</strong> Не удалось установить соединение с почтой. Попробуйте позже, либо свяжитесь с сис.администратором.';

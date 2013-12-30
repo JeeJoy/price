@@ -1,5 +1,5 @@
 <?php 
-	include_once "core/config.php";
+	include_once "config.php";
 	
 	if (isset($_POST['login'])) {
 		$login = $_POST['login'];
@@ -13,7 +13,7 @@
 	}
 	if (empty($login) or empty($password))
 	{
-		header('Location: http://'.$_SERVER['HTTP_HOST'].'/signin.php');
+		header('Location: http://'.$_SERVER['HTTP_HOST'].'/index.php');
 		exit();
 	}
 	
@@ -27,9 +27,10 @@
 	
 	if ((md5(md5($password)) == $apass) and $login == $alogin) {
 		$_SESSION['login'] = $alogin;
-		header('Location: index.php');
+		header('Location: /index.php');
 	} else {
 		//header('Location: /signin/?err=1');
-		header('Location: /signin.php?err=1');
+		//header('Location: /signin.php?err=1');
+		header('Location: /index.php?err=1');
 	}
 ?>
