@@ -30,7 +30,7 @@
 		}
 		function connect() //Connect To the Mail Box
 		{
-			$source = $this->marubox=@imap_open($this->server,$this->username,$this->password);
+			$source = $this->marubox=imap_open($this->server,$this->username,$this->password);
 			
 			if(!$this->marubox)
 			{
@@ -119,8 +119,9 @@
 			if(!$this->marubox)
 				return false;
 
-			$headers=imap_headers($this->marubox);
-			return count($headers);
+			//$headers=imap_headers($this->marubox);
+			//return count($headers);
+			return imap_num_msg($this->marubox);
 		}
 		function GetAttach($getonlyname = true, $mid = '', $rename = false, $path = '') // Get Atteced File from Mail
 		{
@@ -135,6 +136,7 @@
 			//$ar="";
 			$ar = array();
 			$partNum = 0;
+			$i = 0;
 			if($struckture->parts)
 			{
 				foreach($struckture->parts as $key => $value)
@@ -147,9 +149,48 @@
 					if($struckture->parts[$key]->ifdparameters)
 					{
 						$name=$struckture->parts[$key]->dparameters[0]->value;
-						$name = explode("?", $name);
+						//echo('<br>Закодированное имя: ');
 						//var_dump($name);
-						//echo('<br>');
+						$newName = '';
+						if (substr($name, 0, 2) == '=?' and substr($name, -2) == '?=') {
+							$arrName = substr($name, 1, strlen($name)-2); // Удаляем "=" в начале и конце
+							//echo('<br>Удаляем в начале и конце "=": ');
+							//var_dump($arrName);
+							
+							$arrName = preg_replace('/[\s]{1,}/', ' ', $arrName);
+							//echo('<br>Удаляем двойные пробелы: ');
+							//var_dump($arrName);
+							
+							$arrName = explode("= =", $arrName); // Разбиваем в массив по разделителю "= ="
+							//echo('<br>Разбиваем по "= =": ');
+							//var_dump($arrName);
+							
+							// Разбиваем строки на подмассивы по разделителю "?"
+							for ($j=0; $j < count($arrName); $j++)
+								$arrName[$j] = explode("?", $arrName[$j]);
+							//echo('<br>Разбиваем на подмассивы по "?": ');
+							//var_dump($arrName);
+							
+							// Декодируем массив и собираем его обратно
+							//echo('<br>Собираем имя.');
+							for ($j=0; $j < count($arrName); $j++) {
+								$arrName[$j][3] = ($arrName[$j][2] == 'Q' ? quoted_printable_decode($arrName[$j][3]) : base64_decode($arrName[$j][3]));
+								if 		(strtolower($arrName[$j][1]) == strtolower('windows-1251')) $arrName[$j][3] = iconv('cp1251', 	'utf-8', $arrName[$j][3]);
+								elseif 	(strtolower($arrName[$j][1]) == strtolower('KOI8-R')) 		$arrName[$j][3] = iconv('KOI8-R', 	'utf-8', $arrName[$j][3]);
+								elseif 	(strtolower($arrName[$j][1]) != strtolower('utf-8')) 		$arrName[$j][3] = iconv('', 			'utf-8', $arrName[$j][3]);
+								$newName .= $arrName[$j][3];
+								//echo("<br>Часть имени #$j: ");
+								//var_dump($arrName[$j][3]);
+							}
+						} else {
+							$newName = $name;
+						}
+						if ($rename)
+							$newName = substr(md5(uniqid()), 0, 8).'_'.$newName;
+						//echo('<br>Новое имя: ');
+						//var_dump($newName);
+						/*$name = explode("?", $name);
+						//var_dump($name);
 						if (count($name) > 1) {
 							$name[3] = base64_decode($name[3]);
 							if ($name[1] != 'utf-8')
@@ -165,7 +206,7 @@
 							}
 						}
 						if ($rename)
-							$name[0] = substr(md5(uniqid()), 0, 8).'_'.$name[0];
+							$name[0] = substr(md5(uniqid()), 0, 8).'_'.$name[0];*/
 						//var_dump($name);
 						//echo('<br>');
 						if (!$getonlyname) {
@@ -182,12 +223,16 @@
 								$message = quoted_printable_decode($message);
 							if ($enc == 5)
 								$message = $message;
-							$fp=fopen($path.$name[0],"w");
+							//$fp=fopen($path.$name[0],"w");
+							$fp=fopen($path.$newName,"w");
 							fwrite($fp,$message);
 							fclose($fp);
 						}
 						//$ar=$ar.$name[0].",";
-						$ar[] = $name[0];
+						//$ar[] = $name[0];
+						$ar[$i]['name'] = $newName;
+						$ar[$i]['size'] = filesize($path.$newName);
+						$i++;
 					}
 					// Support for embedded attachments starts here
 					if($struckture->parts[$key]->parts)
@@ -198,7 +243,47 @@
 							if($struckture->parts[$key]->parts[$keyb]->ifdparameters)
 							{
 								$name=$struckture->parts[$key]->parts[$keyb]->dparameters[0]->value;
-								$name = explode("?", $name);
+								//echo('<br>Закодированное имя: ');
+								//var_dump($name);
+								$newName = '';
+								if (substr($name, 0, 2) == '=?' and substr($name, -2) == '?=') {
+									$arrName = substr($name, 1, strlen($name)-2); // Удаляем "=" в начале и конце
+									//echo('<br>Удаляем в начале и конце "=": ');
+									//var_dump($arrName);
+									
+									$arrName = preg_replace('/[\s]{1,}/', ' ', $arrName);
+									//echo('<br>Удаляем двойные пробелы: ');
+									//var_dump($arrName);
+									
+									$arrName = explode("= =", $arrName); // Разбиваем в массив по разделителю "= ="
+									//echo('<br>Разбиваем по "= =": ');
+									//var_dump($arrName);
+									
+									// Разбиваем строки на подмассивы по разделителю "?"
+									for ($j=0; $j < count($arrName); $j++)
+										$arrName[$j] = explode("?", $arrName[$j]);
+									//echo('<br>Разбиваем на подмассивы по "?": ');
+									//var_dump($arrName);
+									
+									// Декодируем массив и собираем его обратно
+									//echo('<br>Собираем имя.');
+									for ($j=0; $j < count($arrName); $j++) {
+										$arrName[$j][3] = ($arrName[$j][2] == 'Q' ? quoted_printable_decode($arrName[$j][3]) : base64_decode($arrName[$j][3]));
+										if 		(strtolower($arrName[$j][1]) == strtolower('windows-1251')) $arrName[$j][3] = iconv('cp1251', 	'utf-8', $arrName[$j][3]);
+										elseif 	(strtolower($arrName[$j][1]) == strtolower('KOI8-R')) 		$arrName[$j][3] = iconv('KOI8-R', 	'utf-8', $arrName[$j][3]);
+										elseif 	(strtolower($arrName[$j][1]) != strtolower('utf-8')) 		$arrName[$j][3] = iconv('', 			'utf-8', $arrName[$j][3]);
+										$newName .= $arrName[$j][3];
+										//echo("<br>Часть имени #$j: ");
+										//var_dump($arrName[$j][3]);
+									}
+								} else {
+									$newName = $name;
+								}
+								if ($rename)
+									$newName = substr(md5(uniqid()), 0, 8).'_'.$newName;
+								//echo('<br>Новое имя: ');
+								//var_dump($newName);
+								/*$name = explode("?", $name);
 								//var_dump($name);
 								//echo('<br>');
 								if (count($name) > 1) {
@@ -216,7 +301,7 @@
 									}
 								}
 								if ($rename)
-									$name[0] = substr(md5(uniqid()), 0, 8).'_'.$name[0];
+									$name[0] = substr(md5(uniqid()), 0, 8).'_'.$name[0];*/
 								//var_dump($name);
 								//echo('<br>');
 								$partnro = ($key+1).".".($keyb+1);
@@ -234,12 +319,16 @@
 										   $message = quoted_printable_decode($message);
 									if ($enc == 5)
 										   $message = $message;
-									$fp=fopen($path.$name[0],"w");
+									//$fp=fopen($path.$name[0],"w");
+									$fp=fopen($path.$newName,"w");
 									fwrite($fp,$message);
 									fclose($fp);
 								}
 								//$ar=$ar.$name[0].",";
-								$ar[] = $name[0];
+								//$ar[] = $name[0];
+								$ar[$i]['name'] = $newName;
+								$ar[$i]['size'] = filesize($path.$newName);
+								$i++;
 							}
 						}
 					}                

@@ -8,5 +8,5 @@ $(document).ready(function()
         //e.preventDefault() // Аналог "return false" или типа того
         $(this).tab('show')
     });
-    $('#myPopover').popover(options);
+    //$('#myPopover').popover(options);
 });

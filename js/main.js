@@ -46,6 +46,13 @@ function loadMail(elm) { // Загрузка почты
 						$("#messagesRow").show('slide',{ direction: 'up' }, 500,function() {
 							elm.setAttribute('onclick', 'loadMail(this);');
 						});
+					} else if (data.indexOf('Call to undefined function imap_open') > -1) {
+						document.all.messages.innerHTML = '<strong>Ошибка!</strong> Не установлено расширение "imap".';
+						document.all.messages.className = 'alert alert-danger';
+						$("#messagesRow").show('slide',{ direction: 'up' }, 500,function() {
+							sleep(3000);
+							location.reload();
+		    			});
 					} else if (data.indexOf('Done') > -1) {
 						document.all.messages.innerHTML = '<strong>Готово!</strong> Обновляю страничку.';
 						document.all.messages.className = 'alert alert-success';
@@ -64,8 +71,8 @@ function loadMail(elm) { // Загрузка почты
     		})
     		.fail(function() {
     			$("#messagesRow").hide('slide',{ direction: 'up' }, 500,function() {
-					document.all.messages.innerHTML = '<button type="button" class="close" aria-hidden="true" onclick="MsgCls();">&times;</button><strong>Ошибка!</strong> Скрипт не найден.';
-					document.all.messages.className = 'alert alert-danger';
+					document.all.messages.innerHTML = '<button type="button" class="close" aria-hidden="true" onclick="MsgCls();">&times;</button><strong>Внимание!</strong> Скрипт выполнен с ошибкой.';
+					document.all.messages.className = 'alert alert-warning';
 					$("#messagesRow").show('slide',{ direction: 'up' }, 500,function() {
 						elm.setAttribute('onclick', 'loadMail(this);');
 						elm.innerHTML = 'Сканировать почту';
@@ -87,6 +94,7 @@ function jsonDecode(json) { // Из json в массив
 
 function editRule(id) { // Загрузка параметров правила
 	$.post("core/post.php",{ jquery: 1, query: 'editRule', id: id }, function(data) { // Загрузка удалась
+		//alert(data);
 		setModal('editRule', jsonDecode(data));
 	})
 	.fail(function() { // Загрузка НЕ удалась
@@ -100,9 +108,7 @@ function preDelRule(id) { // Вызов вопроса перед удалени
 
 function delRule(id) { // Удаление правила
 	$.post("core/post.php",{ jquery: 1, query: 'delRule', id: id }, function(data) { // Загрузка удалась
-		if (data == 'Deleted')
-			alert('Правило удалено');
-		else
+		if (data != 'Deleted')
 			alert('Ошибка');
 			
 		location.reload();
