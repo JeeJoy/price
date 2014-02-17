@@ -25,5 +25,9 @@
 			  <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
 			<![endif]-->
 			
+<?php //if (DEVELOP_MODE): ?>
+			<!-- <script src="/js/main2.js"></script> -->
+<?php //else: ?>
 			<script src="/js/main.js"></script>
+<?php //endif; ?>
 		</head>

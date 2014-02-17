@@ -2,4 +2,4 @@
 					case 0:						if (isset($_POST['id']))
 							echo(json_encode(loadRule((int)$_POST['id'])));
 						break;					case 1:						if (isset($_POST['id']))							echo(delRule((int)$_POST['id']));						break;
-				}			} else {				echo('query not found');			}		}	}	/*elseif (isset($_GET['jquery'])) { // Если был послан POST запрос через jQuery		if  (isset($_GET['query'])) {			$queries = array('editRule', 'delRule');			$query = array_search($_GET['query'], $queries);			if ($query !== false) { // Проверяем запрос на корректность				switch ($query) {					case 0:						if (isset($_GET['id']))							var_dump(loadRule((int)$_GET['id']));//echo(json_encode(loadRule((int)$_GET['id'])));						break;					case 1:						if (isset($_GET['id']))							echo(delRule((int)$_GET['id']));						break;				}			} else {				echo('query not found');			}		}	}*/?>
+				}			} else {				echo('query not found');			}		}	}?>

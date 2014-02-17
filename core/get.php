@@ -1,0 +1,1 @@
+<?php	include_once "config.php";		header('Location: /');	if (isset($_GET['dev']))		$_SESSION['dev'] = (int)$_GET['dev'];?>

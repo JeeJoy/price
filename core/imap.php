@@ -9,19 +9,19 @@
 		
 		var $email='';            
 		
-		function receiveMail($username,$password,$EmailAddress,$mailserver='localhost',$servertype='pop',$port='110',$ssl = false) //Constructure
+		function receiveMail($username,$password,$EmailAddress,$mailserver='localhost',$servertype='pop',$port='110',$ssl = false,$folder = 'INBOX') //Constructure
 		{
 			if($servertype=='imap')
 			{
 				$sslStr = ($ssl) ? "ssl/" : "";
 				if($port=='') $port='143'; 
-				//$strConnect='{'.$mailserver.':'.$port. '}INBOX'; 
-				//$strConnect='{'.$mailserver.':'.$port.'/imap/'.$sslStr.'novalidate-cert}INBOX';
-				$strConnect='{'.$mailserver.':'.$port.'/imap/'.$sslStr.'notls}INBOX';
+				//$strConnect='{'.$mailserver.':'.$port.'/imap/'.$sslStr.'notls}INBOX';
+				$strConnect='{'.$mailserver.':'.$port.'/imap/'.$sslStr.'notls}'.$folder;
 			}
 			else
 			{
-				$strConnect='{'.$mailserver.':'.$port. '/pop3'.($ssl ? "/ssl" : "").'}INBOX'; 
+				//$strConnect='{'.$mailserver.':'.$port. '/pop3'.($ssl ? "/ssl" : "").'}INBOX'; 
+				$strConnect='{'.$mailserver.':'.$port. '/pop3'.($ssl ? "/ssl" : "").'}'.$folder;
 			}
 			$this->server            =    $strConnect;
 			$this->username            =    $username;
@@ -30,12 +30,12 @@
 		}
 		function connect() //Connect To the Mail Box
 		{
-			$source = $this->marubox=imap_open($this->server,$this->username,$this->password);
+			$source = $this->marubox=@imap_open($this->server,$this->username,$this->password);
 			
 			if(!$this->marubox)
 			{
-				echo "Error: Connecting to mail server";
-				exit;
+				//echo "Error: Connecting to mail server";
+				return false;
 			}
 			
 			return $source;
@@ -123,7 +123,7 @@
 			//return count($headers);
 			return imap_num_msg($this->marubox);
 		}
-		function GetAttach($getonlyname = true, $mid = '', $rename = false, $path = '') // Get Atteced File from Mail
+		function GetAttach($getonlyname = true, $mid = '', $rename = false, $path = '', $filename = false) // Get Atteced File from Mail
 		{
 			global $DOCUMENT_ROOT;
 			
@@ -131,7 +131,7 @@
 			
 			if(!$this->marubox)
 				return false;
-
+			
 			$struckture = imap_fetchstructure($this->marubox,$mid);
 			//$ar="";
 			$ar = array();
@@ -185,6 +185,8 @@
 						} else {
 							$newName = $name;
 						}
+						if ($filename and strtolower($filename) != strtolower($newName))
+							continue;
 						if ($rename)
 							$newName = substr(md5(uniqid()), 0, 8).'_'.$newName;
 						//echo('<br>Новое имя: ');
@@ -231,11 +233,11 @@
 						//$ar=$ar.$name[0].",";
 						//$ar[] = $name[0];
 						$ar[$i]['name'] = $newName;
-						$ar[$i]['size'] = filesize($path.$newName);
+						if (!$getonlyname) $ar[$i]['size'] = filesize($path.$newName);
 						$i++;
 					}
 					// Support for embedded attachments starts here
-					if($struckture->parts[$key]->parts)
+					if(@$struckture->parts[$key]->parts)
 					{
 						foreach($struckture->parts[$key]->parts as $keyb => $valueb)
 						{
@@ -279,6 +281,8 @@
 								} else {
 									$newName = $name;
 								}
+								if ($filename and strtolower($filename) != strtolower($newName))
+									continue;
 								if ($rename)
 									$newName = substr(md5(uniqid()), 0, 8).'_'.$newName;
 								//echo('<br>Новое имя: ');
@@ -327,7 +331,7 @@
 								//$ar=$ar.$name[0].",";
 								//$ar[] = $name[0];
 								$ar[$i]['name'] = $newName;
-								$ar[$i]['size'] = filesize($path.$newName);
+								if (!$getonlyname) $ar[$i]['size'] = filesize($path.$newName);
 								$i++;
 							}
 						}
